@@ -44,6 +44,9 @@ Page({
     if(options.endTime){
       this.setData({endTime: options.endTime})
     }
+    if(options.storeId){
+        this.setData({storeId: options.storeId})
+      }
     this.getuserinfo()
     this.getXiaLaListAdmin()
   },
@@ -81,7 +84,7 @@ Page({
    */
   onPullDownRefresh() {
     let that = this;
-    this.setData({
+    that.setData({
         pageNo: 1,
         canLoadMore:true,
         list:[]
@@ -96,7 +99,6 @@ Page({
   onReachBottom() {
     let that = this;
     if (that.data.canLoadMore) {
-      that.data.pageNo++;
       this.getMainListdata('')
     } else {
       wx.showToast({
@@ -166,7 +168,7 @@ Page({
            })
           }else{
             wx.showModal({
-              content: '请求服务异常，请稍后重试',
+              content: info.msg,
               showCancel: false,
             })
           }
@@ -185,7 +187,10 @@ Page({
     {
       if (e == "refresh") { //刷新，page变为1
         message = "正在加载"
-        that.setData({pageNo:1})
+        that.setData({
+          pageNo:1,
+          list:[]
+        })
       }
       http.request(
         "/member/manager/getClearManagerPage",
@@ -205,30 +210,31 @@ Page({
           console.info('返回111===');
           console.info(info);
           if (info.code == 0) {
-            if (e == "refresh"){
+            if(info.data.list.length === 0){
               that.setData({
-                list: info.data.list
-              });
-              if(info.data.list.length === 0){
-                that.setData({
-                  canLoadMore: false
-                })
-              }
-            }else{
-              if (info.data != null && info.data.list.length < 10) {
-                that.setData({
-                  canLoadMore: false
-                })
-              }
-              let arr = that.data.list;
-              let arrs = arr.concat(info.data.list);
-              that.setData({
-                list: arrs,
+                canLoadMore: false
               })
+            }else{
+               //有数据
+              if(that.data.list){
+                //列表已有数据  那么就追加
+                let arr = that.data.list;
+                let arrs = arr.concat(info.data.list);
+                that.setData({
+                  list: arrs,
+                  pageNo: that.data.pageNo + 1,
+                  canLoadMore: arrs.length < info.data.total
+                })
+              }else{
+                that.setData({
+                  list: info.data.list,
+                  pageNo: that.data.pageNo + 1,
+                });
+              }
             }
           }else{
             wx.showModal({
-              content: '请求服务异常，请稍后重试',
+              content: info.msg,
               showCancel: false,
             })
           }
@@ -241,7 +247,8 @@ Page({
   },
   //门店下拉菜单发生变化
   storeDropdown(event){
-    //console.log(event)
+    console.log("event")
+    console.log(event)
     this.data.stores.map(it => {
       if(it.value === event.detail){
         this.setData({
@@ -427,7 +434,7 @@ Page({
               })
               setTimeout(() => {
                 that.getMainListdata("refresh")
-              }, 5000);
+              }, 500);
           }else{
             wx.showModal({
               content: info.msg,
@@ -448,4 +455,50 @@ Page({
       url: '../taskDetail/taskDetail?id='+id,
     })
   },
+  //撤销订单
+  cancelOrder(e){
+    var id = e.currentTarget.dataset.info
+    var that = this;
+wx.showModal({
+      title: '提示',
+      content: '是否确认取消该保洁订单？',
+      confirmText: '确认',
+      complete: (res) => {
+        if (res.cancel) {
+          
+        }
+        if (res.confirm) {
+         if (app.globalData.isLogin) 
+        {
+          http.request(
+            "/member/manager/cancelClear/"+id,
+            "1",
+            "post", {
+            },
+            app.globalData.userDatatoken.accessToken,
+            '',
+            function success(info) {
+              if (info.code == 0) {
+                  wx.showToast({
+                    title: '操作成功',
+                  })
+                  setTimeout(() => {
+                    that.getMainListdata("refresh")
+                  }, 500);
+              }else{
+                wx.showModal({
+                  content: info.msg,
+                  showCancel: false,
+                })
+              }
+            },
+            function fail(info) {
+              
+            }
+          )
+        } 
+        }
+      }
+    })
+  }
 })

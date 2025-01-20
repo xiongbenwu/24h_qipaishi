@@ -21,7 +21,8 @@ Page({
     name: '',
     beforeCloseFunction:null,
     isIpx: app.globalData.isIpx?true:false,
-    mainColor: app.globalData.mainColor
+    mainColor: app.globalData.mainColor,
+    isAdmin:false,
   },
 
   /**
@@ -65,7 +66,7 @@ Page({
    */
   onPullDownRefresh() {
     let that = this;
-    this.setData({
+    tthathis.setData({
         pageNo: 1,
         canLoadMore:true,
         list:[]
@@ -80,8 +81,7 @@ Page({
   onReachBottom() {
     let that = this;
     if (that.data.canLoadMore) {
-      that.data.pageNo++;
-      this.getMainListdata('')
+      that.getMainListdata('')
     } else {
       wx.showToast({
         title: '我是有底线的...',
@@ -115,6 +115,7 @@ Page({
             info.data.map(it => {
               stores.push({text:it.key,value:it.value})
             })
+            stores.unshift({text:'请选择',value:''})
            that.setData({
              stores: stores,
              storeId: stores[0].value,
@@ -124,7 +125,7 @@ Page({
            that.getMainListdata("refresh")
           }else{
             wx.showModal({
-              content: '请求服务异常，请稍后重试',
+              content: info.msg,
               showCancel: false,
             })
           }
@@ -143,7 +144,11 @@ Page({
     {
       if (e == "refresh") { //刷新，page变为1
         message = "正在加载"
-        that.setData({pageNo:1})
+        that.setData({
+          list:[],
+          canLoadMore: true,//是否还能加载更多
+          pageNo:1
+        })
       }
       http.request(
         "/member/manager/getAdminUserPage",
@@ -157,28 +162,28 @@ Page({
         message,
         function success(info) {
           console.info('返回111===');
-          console.info(info);
           if (info.code == 0) {
-            if (e == "refresh"){
+            if(info.data.list.length === 0){
               that.setData({
-                list: info.data.list
-              });
-              if(info.data.list.length === 0){
-                that.setData({
-                  canLoadMore: false
-                })
-              }
-            }else{
-              if (info.data != null && info.data.list.length < 10) {
-                that.setData({
-                  canLoadMore: false
-                })
-              }
-              let arr = that.data.list;
-              let arrs = arr.concat(info.data.list);
-              that.setData({
-                list: arrs,
+                canLoadMore: false
               })
+            }else{
+               //有数据
+              if(that.data.list){
+                //列表已有数据  那么就追加
+                let arr = that.data.list;
+                let arrs = arr.concat(info.data.list);
+                that.setData({
+                  list: arrs,
+                  pageNo: that.data.pageNo + 1,
+                  canLoadMore: arrs.length < info.data.total
+                })
+              }else{
+                that.setData({
+                  list: info.data.list,
+                  pageNo: that.data.pageNo + 1,
+                });
+              }
             }
           }else{
             wx.showModal({
@@ -268,7 +273,10 @@ Page({
   // 添加
   add(){
     this.setData({
-      show: true
+      show: true,
+      mobile: '',
+      storeId2: '',
+      index: '',
     })
   },
   bindStoreChange: function(e) {
@@ -321,6 +329,7 @@ Page({
           "storeId": that.data.storeId2,
           "name": that.data.name,
           "mobile": that.data.mobile,
+          "isAdmin": that.data.isAdmin,
         },
         app.globalData.userDatatoken.accessToken,
         "保存中",
@@ -341,12 +350,14 @@ Page({
           }
         },
         function fail(info) {
-          wx.showModal({
-            content: '请求服务异常，请稍后重试',
-            showCancel: false,
-          })
+          
         }
       )
     } 
-  }
+  },
+  changeSwitchStatus: function() {
+    this.setData({
+      isAdmin: !this.data.isAdmin // 根据当前状态取反
+    });
+  },
 })

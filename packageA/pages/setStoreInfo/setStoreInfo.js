@@ -26,12 +26,9 @@ Page({
     wifiPwd: '',
     simpleModel: true,
     kefuPhone: '',
-    notice: '',
     headImg: '',
     btnImg: '',
     storeEnvImg: '',
-    lat: '',
-    lon: '',
     clearTime: '',
     clearOpen: '',
     qrCode: '',
@@ -42,6 +39,7 @@ Page({
     orderDoorOpen: '',
     clearOpenDoor: '',
     txHour: '',
+    orderWebhook: '',
     citylist: [], //城市列表
     ritem: [
       {value: true, name: '是' , checked: 'true'},
@@ -186,7 +184,7 @@ Page({
               wifiPwd: info.data.wifiPwd,
               simpleModel: info.data.simpleModel,
               kefuPhone: info.data.kefuPhone,
-              notice: info.data.notice,
+              orderWebhook: info.data.orderWebhook,
               fileList1: fileList1,
               fileList2: fileList2,
               fileList3: fileList3,
@@ -197,8 +195,6 @@ Page({
               czfileList: czfileList,
               wififileList: wififileList,
               kffileList: kffileList,
-              lat: info.data.lat,
-              lon: info.data.lon,
               clearTime: info.data.clearTime,
               clearOpen: info.data.clearOpen,
               qrCode: info.data.qrCode,
@@ -211,7 +207,7 @@ Page({
             })
           }else{
             wx.showModal({
-              content: '请求服务异常，请稍后重试',
+              content: info.msg,
               showCancel: false,
             })
           }
@@ -226,27 +222,9 @@ Page({
   onClickLocation(){
     this.goLocation()
   },
-  goLocation(){
-    // 获取用户经纬度
-    var that = this
-    wx.getLocation({
-      type: 'gcj02',
-      success(res) {
-        //console.log(res)
-        that.setData({
-          lat: res.latitude,
-          lon: res.longitude
-        })
-      },
-      fail(err) {
-        //console.log(err)
-      }
-    })
-  },
- 
   // 图片上传
   afterRead(event) {
-    //console.log(event)
+    console.log(event)
     let that = this
     let type = event.currentTarget.dataset.info
     const { file } = event.detail;
@@ -383,15 +361,12 @@ Page({
     if(this.data.storeName 
       && this.data.cityName 
       && this.data.address 
-      && this.data.lon
-      && this.data.lat
       && this.data.wifiInfo 
       && this.data.wifiPwd
       && this.data.kefuPhone 
       && this.data.txStartHour
       && this.data.txHour
       && this.data.clearTime
-      && this.data.notice
       && this.data.fileList1.length 
       && this.data.fileList2.length 
     ){}else{
@@ -418,14 +393,12 @@ Page({
         "cityName": that.data.cityName,
         "headImg": that.data.fileList1[0].url,
         "bannerImg": bannerImgs.join(","),
-        "notice": that.data.notice,
+        "orderWebhook": that.data.orderWebhook,
         "address": that.data.address,
         "wifiInfo": that.data.wifiInfo,
         "wifiPwd": that.data.wifiPwd,
         "simpleModel": that.data.simpleModel,
         "kefuPhone": that.data.kefuPhone,
-        "lat": that.data.lat,
-        "lon": that.data.lon,
         "clearTime": that.data.clearTime,
         "clearOpen": that.data.clearOpen,
         "showTxPrice": that.data.showTxPrice,
@@ -459,14 +432,12 @@ Page({
             "kfImg": that.data.kffileList[0].url,
             "storeEnvImg": imgs.join(","),
             "bannerImg": bannerImgs.join(","),
-            "notice": that.data.notice,
+            "orderWebhook": that.data.orderWebhook,
             "address": that.data.address,
             "wifiInfo": that.data.wifiInfo,
             "wifiPwd": that.data.wifiPwd,
             "simpleModel": that.data.simpleModel,
             "kefuPhone": that.data.kefuPhone,
-            "lat": that.data.lat,
-            "lon": that.data.lon,
             "clearTime": that.data.clearTime,
             "clearOpen": that.data.clearOpen,
             "showTxPrice": that.data.showTxPrice,

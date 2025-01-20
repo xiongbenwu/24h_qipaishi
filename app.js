@@ -3,12 +3,13 @@ App({
   globalData: {
     //接口地址
     baseUrl: "https://wq.scyanzu.com/app-api",
-    // baseUrl: "http://test.maozngjian.com:8900/app-api",
+    // baseUrl: "http://localhost:8900/app-api",
+    // baseUrl: "http://test.mzj.com:8900/app-api",
     //租户id
     tenantId: "150",
     //小程序名称
     appName: "麻老板无人自助系统",
-    
+
 
     //下面的不要改
     sysinfo: {},
@@ -59,17 +60,17 @@ App({
         _this.globalData.systemInfo = res
         let totalTopHeight = 64;
         //console.log(res.model)
-      //   if (res.model.indexOf('iPhone X') != -1) {
-      //     _this.globalData.isIpx = true
-      //  }
-       if(res.system.indexOf('iOS') > -1){
-        _this.globalData.isIos = true
-       }else{
-        _this.globalData.isIos = false
-       }
-        if (res.screenTop>0){
+        //   if (res.model.indexOf('iPhone X') != -1) {
+        //     _this.globalData.isIpx = true
+        //  }
+        if (res.system.indexOf('iOS') > -1) {
+          _this.globalData.isIos = true
+        } else {
+          _this.globalData.isIos = false
+        }
+        if (res.screenTop > 0) {
           totalTopHeight = res.screenTop;
-        }else{
+        } else {
           totalTopHeight = res.statusBarHeight + 44;
           // if (res.model.indexOf('iPhone X') !== -1) {
           //   totalTopHeight = 88
@@ -89,11 +90,13 @@ App({
       }
     })
     //console.log('启动程序==');
+  },
+  onShow() {
+    console.log('app.js onShow');
+    var _this = this;
     wx.getStorage({
       key: 'userDatatoken',
       success: function (res) {
-        //console.log(res.data);
-        //console.log('启动程序==+++++');
         _this.globalData.userDatatoken = res.data;
         _this.globalData.isLogin = true;
       },
@@ -104,7 +107,7 @@ App({
       }
     })
   },
-  
+
   // 判断设备是否为 iPhone X
   checkIsIPhoneX: function () {
     var that = this

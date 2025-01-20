@@ -6,15 +6,15 @@
   <view class="sorts">
     <view class="sort border-primary color-primary" bind:tap="search" data-info="createTime">
       <text>注册时间</text>
-      <view class="iconfont icon-paixu"></view>
+      <iconfont name="changeorder" size="14"></iconfont>
     </view>
     <view class="sort border-primary color-primary" bind:tap="search" data-info="orderTime">
       <text>下单时间</text>
-      <view class="iconfont icon-paixu"></view>
+      <iconfont name="changeorder" size="14"></iconfont>
     </view>
     <view class="sort border-primary color-primary" bind:tap="search" data-info="orderCount">
       <text>订单数量</text>
-      <view class="iconfont icon-paixu"></view>
+      <iconfont name="changeorder" size="14"></iconfont>
     </view>
   </view>
 </view>
@@ -35,7 +35,7 @@
           <view class="right">
             <view class="info">
               手机号 ：{{item.mobile}}
-              <text class="link color-primary" wx:if="{{!isSelect}}" bindtap="copy" data-info="{{item.mobile}}">点击复制</text>
+              <text class="link color-primary" wx:if="{{!isSelect}}" bindtap="copy" data-info="{{item.mobile}}">复制</text>
             </view>
             <view class="info">注册时间：{{item.createTime}}</view>
             <view class="info">最近下单：{{item.orderTime?item.orderTime:''}}</view>
@@ -44,7 +44,7 @@
               <text>{{item.orderCount}}</text>
               单
             </view>
-            <view class="info" wx:if="{{!isSelect}}">
+            <!-- <view class="info" wx:if="{{!isSelect}}">
               账户余额：
               <text>{{item.balance}}</text>
               元
@@ -53,11 +53,11 @@
               赠送余额：
               <text>{{item.giftBalance}}</text>
               元
-            </view>
+            </view> -->
           </view>
         </view>
-         <!-- 会员管理 -->
-         <view class="btns">
+        <!-- 会员管理 -->
+        <!-- <view class="btns">
             <button class="btn red" bind:tap="recharge" data-info="{{item}}">余额充值</button>
             <navigator class="btn red" url="../setCoupon/setCoupon?isSelect=1&&userId={{item.id}}">
               赠送优惠券
@@ -65,7 +65,11 @@
             <navigator class="btn red" url="../SetOrder/SetOrder?userId={{item.id}}">
               查看订单
             </navigator>
-          </view>
+          </view> -->
+        <view class="button-wrapper">
+          <!-- 添加一个包裹按钮的容器 -->
+          <button class="btn-more" bindtap="toDetail" data-info="{{item}}">详情</button>
+        </view>
       </view>
     </view>
     <view wx:if="{{canLoadMore}}" class="noteMore">下拉刷新查看更多...</view>
@@ -96,42 +100,20 @@
 </van-dialog> -->
 
 <!-- 余额充值 -->
-<van-dialog
-  use-slot
-  title="余额充值"
-  show="{{ showRecharge }}"
-  show-cancel-button
-  bind:confirm="confirmRecharge"
-  bind:cancel="cancelRecharge" 
->
+<van-dialog use-slot title="余额充值" show="{{ showRecharge }}" show-cancel-button bind:confirm="confirmRecharge" bind:cancel="cancelRecharge">
   <view class="dialog">
     <van-cell-group>
-      <van-field
-        label="门店："
-        placeholder="请选择门店"
-      >
-      <picker slot="input" bindchange="bindStoreChange" value="{{index}}" range-key="text" range="{{stores}}">
+      <van-field label="门店：" placeholder="请选择门店">
+        <picker slot="input" bindchange="bindStoreChange" value="{{index}}" range-key="text" range="{{stores}}">
           <view class="picker">
-            <input type="text" disabled placeholder="请选择门店" placeholder-class="plh" value="{{stores[index].text}}"/>
+            <input type="text" disabled placeholder="请选择门店" placeholder-class="plh" value="{{stores[index].text}}" />
             <van-icon name="arrow-down" />
           </view>
         </picker>
       </van-field>
-      <van-field
-        model:value="{{member.nickname}}"
-        label="用户昵称："
-      />
-      <van-field
-        model:value="{{member.mobile}}"
-        label="手机号："
-      />
-      <van-field
-        model:value="{{money}}"
-        tyoe="number"
-        label="充值金额："
-        placeholder="请输入大于0的数字"
-        border="{{ false }}"
-      />
+      <van-field model:value="{{member.nickname}}" label="用户昵称：" />
+      <van-field model:value="{{member.mobile}}" label="手机号：" />
+      <van-field model:value="{{money}}" tyoe="number" label="充值金额：" placeholder="请输入大于0的数字" border="{{ false }}" />
       <view class="tip">金额输入0等于清空该会员余额</view>
     </van-cell-group>
   </view>
